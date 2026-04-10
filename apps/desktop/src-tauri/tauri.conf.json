@@ -4,8 +4,7 @@
   "version": "0.1.0",
   "identifier": "io.clawproxy.app",
   "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420"
+    "frontendDist": "../dist"
   },
   "app": {
     "withGlobalTauri": true,

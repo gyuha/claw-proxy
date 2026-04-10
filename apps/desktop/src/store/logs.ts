@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { LogEntry } from '../../../../packages/shared-types/src';
+import type { LogEntry } from '../types';
 
 const MAX_LOGS = 500;
 

@@ -1,4 +1,4 @@
-import type { LogEntry } from '../../../packages/shared-types/src';
+import type { LogEntry } from '../types';
 
 const WS_URL = 'ws://localhost:47381/ws';
 

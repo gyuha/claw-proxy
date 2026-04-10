@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getStatus } from '../api/client';
-import type { ServerStatus } from '../../../../packages/shared-types/src';
+import type { ServerStatus } from '../types';
 
 interface ServerStore {
   status: ServerStatus | null;

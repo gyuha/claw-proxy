@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getProviders } from '../api/client';
-import type { ProviderInfo } from '../../../../packages/shared-types/src';
+import type { ProviderInfo } from '../types';
 
 interface ProviderStore {
   providers: ProviderInfo[];
