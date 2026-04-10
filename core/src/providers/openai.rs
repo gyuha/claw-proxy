@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::normalizer::{InternalRequest, InternalResponse, Role};
-use crate::normalizer::from_openai::{OpenAIRequest, OpenAIMessage};
+use crate::normalizer::from_openai::{OpenAIContent, OpenAIMessage, OpenAIRequest};
 use crate::error::AppError;
 use super::Provider;
 use uuid::Uuid;
@@ -48,7 +48,7 @@ impl Provider for OpenAIProvider {
                     Role::User => "user".to_string(),
                     Role::Assistant => "assistant".to_string(),
                 },
-                content: m.content.clone(),
+                content: OpenAIContent::Text(m.content.clone()),
             }
         }).collect();
 
@@ -58,6 +58,9 @@ impl Provider for OpenAIProvider {
             stream: false,
             max_tokens: request.max_tokens,
             temperature: request.temperature,
+            tools: None,
+            tool_choice: None,
+            function_call: None,
         };
 
         let resp = self.client

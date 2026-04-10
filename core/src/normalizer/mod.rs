@@ -1,5 +1,6 @@
 // core/src/normalizer/mod.rs
 use serde::{Deserialize, Serialize};
+use crate::error::AppError;
 
 pub mod from_openai;
 pub mod from_anthropic;
@@ -41,11 +42,11 @@ pub struct InternalRequest {
 }
 
 impl InternalRequest {
-    pub fn from_openai(req: OpenAIRequest) -> Self {
+    pub fn from_openai(req: OpenAIRequest) -> std::result::Result<Self, AppError> {
         from_openai::convert(req)
     }
 
-    pub fn from_anthropic(req: AnthropicRequest) -> Self {
+    pub fn from_anthropic(req: AnthropicRequest) -> std::result::Result<Self, AppError> {
         from_anthropic::convert(req)
     }
 }
@@ -71,7 +72,7 @@ mod tests {
             "stream": false
         });
         let req: OpenAIRequest = serde_json::from_value(json).unwrap();
-        let internal = InternalRequest::from_openai(req);
+        let internal = InternalRequest::from_openai(req).unwrap();
         assert_eq!(internal.model, "gpt-4o");
         assert_eq!(internal.messages.len(), 1);
         assert!(matches!(internal.source_format, ApiFormat::OpenAI));
@@ -85,37 +86,38 @@ mod tests {
             "messages": [{"role": "user", "content": "Hello"}]
         });
         let req: AnthropicRequest = serde_json::from_value(json).unwrap();
-        let internal = InternalRequest::from_anthropic(req);
+        let internal = InternalRequest::from_anthropic(req).unwrap();
         assert_eq!(internal.model, "claude-3-5-sonnet-20241022");
         assert!(matches!(internal.source_format, ApiFormat::Anthropic));
     }
 
     #[test]
-    #[ignore = "Enabled in Task 2 once normalization returns Result"]
     fn rejects_openai_stream_true() {
-        let _request = serde_json::json!({
+        let request = serde_json::json!({
             "model": "gpt-4o",
             "messages": [{"role": "user", "content": "hello"}],
             "stream": true
         });
-        panic!("Task 2 should assert OpenAI stream requests are rejected");
+        let req: OpenAIRequest = serde_json::from_value(request).unwrap();
+        let error = InternalRequest::from_openai(req).unwrap_err();
+        assert!(matches!(error, AppError::Normalize(message) if message.contains("unsupported stream")));
     }
 
     #[test]
-    #[ignore = "Enabled in Task 2 once normalization returns Result"]
     fn rejects_openai_developer_role() {
-        let _request = serde_json::json!({
+        let request = serde_json::json!({
             "model": "gpt-4o",
             "messages": [{"role": "developer", "content": "do not compile"}],
             "stream": false
         });
-        panic!("Task 2 should assert unsupported OpenAI roles are rejected");
+        let req: OpenAIRequest = serde_json::from_value(request).unwrap();
+        let error = InternalRequest::from_openai(req).unwrap_err();
+        assert!(matches!(error, AppError::Normalize(message) if message.contains("unsupported OpenAI role")));
     }
 
     #[test]
-    #[ignore = "Enabled in Task 2 once normalization returns Result"]
     fn rejects_openai_content_array() {
-        let _request = serde_json::json!({
+        let request = serde_json::json!({
             "model": "gpt-4o",
             "messages": [{
                 "role": "user",
@@ -123,13 +125,14 @@ mod tests {
             }],
             "stream": false
         });
-        panic!("Task 2 should assert OpenAI content array payloads are rejected");
+        let req: OpenAIRequest = serde_json::from_value(request).unwrap();
+        let error = InternalRequest::from_openai(req).unwrap_err();
+        assert!(matches!(error, AppError::Normalize(message) if message.contains("content array")));
     }
 
     #[test]
-    #[ignore = "Enabled in Task 2 once normalization returns Result"]
     fn rejects_anthropic_non_text_content_blocks() {
-        let _request = serde_json::json!({
+        let request = serde_json::json!({
             "model": "claude-3-5-sonnet-latest",
             "max_tokens": 128,
             "messages": [{
@@ -137,18 +140,21 @@ mod tests {
                 "content": [{"type": "image", "source": {"type": "base64"}}]
             }]
         });
-        panic!("Task 2 should assert Anthropic non-text content blocks are rejected");
+        let req: AnthropicRequest = serde_json::from_value(request).unwrap();
+        let error = InternalRequest::from_anthropic(req).unwrap_err();
+        assert!(matches!(error, AppError::Normalize(message) if message.contains("non-text")));
     }
 
     #[test]
-    #[ignore = "Enabled in Task 2 once normalization returns Result"]
     fn rejects_tool_fields() {
-        let _request = serde_json::json!({
+        let request = serde_json::json!({
             "model": "gpt-4o",
             "messages": [{"role": "user", "content": "use a tool"}],
             "tools": [{"type": "function", "function": {"name": "tool"}}],
             "tool_choice": "auto"
         });
-        panic!("Task 2 should assert tool-bearing payload fields are rejected");
+        let req: OpenAIRequest = serde_json::from_value(request).unwrap();
+        let error = InternalRequest::from_openai(req).unwrap_err();
+        assert!(matches!(error, AppError::Normalize(message) if message.contains("tool")));
     }
 }

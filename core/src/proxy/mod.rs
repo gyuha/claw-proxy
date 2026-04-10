@@ -32,7 +32,16 @@ async fn handle_openai(
     State(state): State<AppState>,
     Json(req): Json<OpenAIRequest>,
 ) -> impl IntoResponse {
-    let internal = InternalRequest::from_openai(req);
+    let internal = match InternalRequest::from_openai(req) {
+        Ok(internal) => internal,
+        Err(error) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": error.to_string()})),
+            )
+                .into_response();
+        }
+    };
     match dispatch(state, internal).await {
         Ok(resp) => {
             let openai_resp = to_openai::convert(resp);
@@ -49,7 +58,16 @@ async fn handle_anthropic(
     State(state): State<AppState>,
     Json(req): Json<AnthropicRequest>,
 ) -> impl IntoResponse {
-    let internal = InternalRequest::from_anthropic(req);
+    let internal = match InternalRequest::from_anthropic(req) {
+        Ok(internal) => internal,
+        Err(error) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": error.to_string()})),
+            )
+                .into_response();
+        }
+    };
     match dispatch(state, internal).await {
         Ok(resp) => {
             let anthropic_resp = to_anthropic::convert(resp);
