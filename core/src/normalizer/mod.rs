@@ -89,4 +89,66 @@ mod tests {
         assert_eq!(internal.model, "claude-3-5-sonnet-20241022");
         assert!(matches!(internal.source_format, ApiFormat::Anthropic));
     }
+
+    #[test]
+    #[ignore = "Enabled in Task 2 once normalization returns Result"]
+    fn rejects_openai_stream_true() {
+        let _request = serde_json::json!({
+            "model": "gpt-4o",
+            "messages": [{"role": "user", "content": "hello"}],
+            "stream": true
+        });
+        panic!("Task 2 should assert OpenAI stream requests are rejected");
+    }
+
+    #[test]
+    #[ignore = "Enabled in Task 2 once normalization returns Result"]
+    fn rejects_openai_developer_role() {
+        let _request = serde_json::json!({
+            "model": "gpt-4o",
+            "messages": [{"role": "developer", "content": "do not compile"}],
+            "stream": false
+        });
+        panic!("Task 2 should assert unsupported OpenAI roles are rejected");
+    }
+
+    #[test]
+    #[ignore = "Enabled in Task 2 once normalization returns Result"]
+    fn rejects_openai_content_array() {
+        let _request = serde_json::json!({
+            "model": "gpt-4o",
+            "messages": [{
+                "role": "user",
+                "content": [{"type": "text", "text": "content array"}]
+            }],
+            "stream": false
+        });
+        panic!("Task 2 should assert OpenAI content array payloads are rejected");
+    }
+
+    #[test]
+    #[ignore = "Enabled in Task 2 once normalization returns Result"]
+    fn rejects_anthropic_non_text_content_blocks() {
+        let _request = serde_json::json!({
+            "model": "claude-3-5-sonnet-latest",
+            "max_tokens": 128,
+            "messages": [{
+                "role": "user",
+                "content": [{"type": "image", "source": {"type": "base64"}}]
+            }]
+        });
+        panic!("Task 2 should assert Anthropic non-text content blocks are rejected");
+    }
+
+    #[test]
+    #[ignore = "Enabled in Task 2 once normalization returns Result"]
+    fn rejects_tool_fields() {
+        let _request = serde_json::json!({
+            "model": "gpt-4o",
+            "messages": [{"role": "user", "content": "use a tool"}],
+            "tools": [{"type": "function", "function": {"name": "tool"}}],
+            "tool_choice": "auto"
+        });
+        panic!("Task 2 should assert tool-bearing payload fields are rejected");
+    }
 }
