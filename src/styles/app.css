@@ -1,0 +1,247 @@
+:root {
+  color: rgba(0, 0, 0, 0.95);
+  background:
+    radial-gradient(circle at top left, rgba(0, 117, 222, 0.09), transparent 28%),
+    linear-gradient(180deg, rgba(246, 245, 244, 0.92) 0%, #ffffff 58%);
+  font-family:
+    "NotionInter", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  font-weight: 400;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 48px 24px;
+  color: rgba(0, 0, 0, 0.95);
+}
+
+.app-shell__backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(242, 249, 255, 0.95), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(246, 245, 244, 0.85), transparent 30%);
+  pointer-events: none;
+}
+
+.app-shell__frame {
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.hero-card,
+.runtime-card,
+.future-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 4px 18px,
+    rgba(0, 0, 0, 0.027) 0px 2.025px 7.84688px,
+    rgba(0, 0, 0, 0.02) 0px 0.8px 2.925px,
+    rgba(0, 0, 0, 0.01) 0px 0.175px 1.04062px;
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  padding: 32px;
+  overflow: hidden;
+}
+
+.hero-card__copy h1 {
+  margin: 12px 0 10px;
+  font-size: clamp(2.5rem, 5vw, 4.1rem);
+  line-height: 0.98;
+  letter-spacing: -0.08em;
+}
+
+.hero-card__lede {
+  max-width: 42rem;
+  margin: 0;
+  color: #615d59;
+  font-size: 1.02rem;
+}
+
+.hero-card__meta {
+  min-width: 220px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 18px;
+  border-radius: 18px;
+  background: #f6f5f4;
+}
+
+.hero-card__meta-label,
+.runtime-card__stats dt {
+  display: block;
+  margin-bottom: 4px;
+  color: #a39e98;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-card__meta strong,
+.runtime-card__stats dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.app-shell__content {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(0, 0.9fr);
+}
+
+.runtime-card {
+  padding: 28px;
+  background:
+    linear-gradient(180deg, rgba(246, 245, 244, 0.66) 0%, rgba(255, 255, 255, 0.94) 100%);
+}
+
+.runtime-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.runtime-card__header h2,
+.future-card h2 {
+  margin: 8px 0 0;
+  font-size: 1.45rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.runtime-card__description,
+.future-card p {
+  margin: 14px 0 0;
+  color: #615d59;
+}
+
+.runtime-card__stats {
+  margin: 24px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.runtime-card__stats div {
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.future-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.future-card {
+  padding: 24px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.95);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow--muted {
+  color: #a39e98;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-pill--ready {
+  background: #f2f9ff;
+  color: #097fe8;
+}
+
+.status-pill--starting {
+  background: rgba(0, 117, 222, 0.12);
+  color: #005bab;
+}
+
+.status-pill--stopped {
+  background: rgba(221, 91, 0, 0.12);
+  color: #dd5b00;
+}
+
+.status-pill--error {
+  background: rgba(221, 91, 0, 0.12);
+  color: #dd5b00;
+}
+
+@media (max-width: 920px) {
+  .hero-card,
+  .app-shell__content {
+    grid-template-columns: 1fr;
+  }
+
+  .runtime-card__header {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 24px 16px;
+  }
+
+  .hero-card,
+  .runtime-card,
+  .future-card {
+    border-radius: 16px;
+  }
+
+  .runtime-card__stats {
+    grid-template-columns: 1fr;
+  }
+}
