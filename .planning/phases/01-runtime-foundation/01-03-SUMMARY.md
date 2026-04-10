@@ -60,6 +60,7 @@ Each task was committed atomically:
 3. **Task 1 REFACTOR: simplify runtime shell tests** - `694c6ff` (`refactor`)
 4. **Task 2: build runtime status shell** - `2da8b53` (`feat`)
 5. **Task 3: verify shell build path** - `a08a8af` (`test`)
+6. **Post-review test hardening: stabilize refresh-path initialization coverage** - `1a89694` (`test`)
 
 **Plan metadata:** pending
 
@@ -98,10 +99,18 @@ Each task was committed atomically:
 - **Verification:** `pnpm tauri build --debug`
 - **Committed in:** `a08a8af`
 
+**3. [Rule 1 - Bug] Stabilized the refresh-path hook test after code review**
+- **Found during:** Phase-level code review gate
+- **Issue:** The refresh-path hook test reset `initializeRuntimeState` in `beforeEach()` without reconfiguring it, allowing mount-time initialization to briefly resolve to `undefined` and weakening coverage.
+- **Fix:** Added a default `initializeRuntimeState.mockResolvedValue(createRuntimeSnapshot())` in the test setup so every mount exercises a valid initialization snapshot before refresh overrides.
+- **Files modified:** `src/features/runtime/__tests__/runtime-status.test.tsx`
+- **Verification:** `pnpm vitest run src/features/runtime/models.test.ts src/features/runtime/__tests__/runtime-status.test.tsx`
+- **Committed in:** `1a89694`
+
 ---
 
-**Total deviations:** 2 auto-fixed (1 blocking, 1 bug)
-**Impact on plan:** Both fixes tightened Phase 1’s intended boundary. The first enabled meaningful UI verification, and the second removed unnecessary hook state before the shell shipped.
+**Total deviations:** 3 auto-fixed (1 blocking, 2 bugs)
+**Impact on plan:** All three fixes tightened Phase 1’s intended boundary. They enabled meaningful UI verification, removed unnecessary hook state, and made the refresh-path coverage reliable.
 
 ## Issues Encountered
 - The first shell composition assertion matched multiple “Providers” labels, which was resolved by tightening the test to assert the expected count instead of assuming unique text.

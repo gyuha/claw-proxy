@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Set up the Tauri 2 workspace, embedded Rust runtime, and thin desktop shell
-- [ ] 01-02: Define configuration schema, runtime-owned state snapshots, and IPC boundaries
-- [ ] 01-03: Implement the minimal control surface for runtime status and future settings areas
+- [x] 01-01: Set up the Tauri 2 workspace, embedded Rust runtime, and thin desktop shell
+- [x] 01-02: Define configuration schema, runtime-owned state snapshots, and IPC boundaries
+- [x] 01-03: Implement the minimal control surface for runtime status and future settings areas
 
 ### Phase 2: Proxy Control Surface
 **Goal**: Embed or orchestrate the local proxy runtime so users can manage it entirely from the desktop UI
