@@ -8,10 +8,10 @@
 ### Proxy API
 
 - [x] **PROXY-01**: Developer can run the proxy as a standalone local process by starting the Rust core with a YAML config file.
-- [ ] **PROXY-02**: Developer can send OpenAI-compatible requests to `/v1/chat/completions` and receive an OpenAI-compatible response from the proxy.
-- [ ] **PROXY-03**: Developer can send Anthropic-compatible requests to `/v1/messages` and receive an Anthropic-compatible response from the proxy.
-- [ ] **PROXY-04**: Developer can point Claude Code at the proxy with `ANTHROPIC_BASE_URL=http://localhost:<proxy_port>` and keep using the normal Claude workflow.
-- [ ] **PROXY-05**: Proxy request handling converts supported caller formats into one internal request model before routing to providers.
+- [x] **PROXY-02**: Developer can send OpenAI-compatible requests to `/v1/chat/completions` and receive an OpenAI-compatible response from the proxy.
+- [x] **PROXY-03**: Developer can send Anthropic-compatible requests to `/v1/messages` and receive an Anthropic-compatible response from the proxy.
+- [x] **PROXY-04**: Developer can point Claude Code at the proxy with `ANTHROPIC_BASE_URL=http://localhost:<proxy_port>` and keep using the normal Claude workflow.
+- [x] **PROXY-05**: Proxy request handling converts supported caller formats into one internal request model before routing to providers.
 
 ### Routing & Config
 
@@ -77,10 +77,10 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | PROXY-01 | Phase 1 | Complete |
-| PROXY-02 | Phase 1 | Pending |
-| PROXY-03 | Phase 1 | Pending |
-| PROXY-04 | Phase 1 | Pending |
-| PROXY-05 | Phase 1 | Pending |
+| PROXY-02 | Phase 1 | Complete |
+| PROXY-03 | Phase 1 | Complete |
+| PROXY-04 | Phase 1 | Complete |
+| PROXY-05 | Phase 1 | Complete |
 | PROV-01 | Phase 1 | Pending |
 | ROUT-01 | Phase 2 | Pending |
 | ROUT-02 | Phase 2 | Pending |
