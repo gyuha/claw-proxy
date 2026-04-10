@@ -31,9 +31,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Finalize core server bootstrap, config loading, and error boundaries for standalone proxy execution.
-- [ ] 01-02: Complete bidirectional normalization for OpenAI and Anthropic request/response flows.
-- [ ] 01-03: Finish the OpenAI adapter and add integration coverage for the first end-to-end path.
+- [ ] 01-01-PLAN.md — Finalize standalone boot, configured-port status reporting, and the shared Phase 1 integration harness.
+- [ ] 01-02-PLAN.md — Enforce strict text-only normalization, server-side Anthropic model aliasing, protocol-preserving ingress/egress, and the Claude Code gateway count route.
+- [ ] 01-03-PLAN.md — Make the OpenAI adapter mock-upstream testable, sanitize upstream failures, and finish manual smoke verification.
 
 ### Phase 2: Routing and Control Plane
 **Goal**: Introduce reliable multi-account routing, hot-reloaded configuration, admin REST endpoints, and live WebSocket log streaming.
