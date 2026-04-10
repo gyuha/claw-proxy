@@ -26,13 +26,30 @@ async fn main() {
         config.routing.strategy.clone(),
     ));
 
-    // Proxy server state
+    let (log_tx, _) = broadcast::channel(256);
+
+    // Proxy server
     let proxy_state = claw_proxy_core::proxy::AppState { router: Arc::clone(&router) };
     let proxy_app = claw_proxy_core::proxy::create_router(proxy_state);
     let proxy_addr = format!("127.0.0.1:{}", config.server.proxy_port);
 
-    tracing::info!("Proxy listening on http://{}", proxy_addr);
+    // Admin server
+    let admin_state = claw_proxy_core::admin::AdminState {
+        router: Arc::clone(&router),
+        log_tx,
+        start_time: std::time::Instant::now(),
+    };
+    let admin_app = claw_proxy_core::admin::create_router(admin_state);
+    let admin_addr = format!("127.0.0.1:{}", config.server.admin_port);
 
-    let listener = tokio::net::TcpListener::bind(&proxy_addr).await.unwrap();
-    axum::serve(listener, proxy_app).await.unwrap();
+    tracing::info!("Proxy  → http://{}", proxy_addr);
+    tracing::info!("Admin  → http://{}", admin_addr);
+
+    let proxy_listener = tokio::net::TcpListener::bind(&proxy_addr).await.unwrap();
+    let admin_listener = tokio::net::TcpListener::bind(&admin_addr).await.unwrap();
+
+    tokio::join!(
+        axum::serve(proxy_listener, proxy_app),
+        axum::serve(admin_listener, admin_app),
+    );
 }
