@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::error::AppError;
@@ -8,6 +9,30 @@ use crate::normalizer::{InternalRequest, InternalResponse, Role};
 use super::Provider;
 
 const OPENAI_BASE_URL: &str = "https://api.openai.com";
+
+#[derive(Debug, Deserialize)]
+struct OpenAIChatCompletionResponse {
+    id: String,
+    model: String,
+    choices: Vec<OpenAIChoice>,
+    usage: OpenAIUsage,
+}
+
+#[derive(Debug, Deserialize)]
+struct OpenAIChoice {
+    message: OpenAIResponseMessage,
+}
+
+#[derive(Debug, Deserialize)]
+struct OpenAIResponseMessage {
+    content: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct OpenAIUsage {
+    prompt_tokens: u32,
+    completion_tokens: u32,
+}
 
 pub struct OpenAIProvider {
     name: String,
@@ -96,23 +121,26 @@ impl Provider for OpenAIProvider {
             return Err(AppError::Provider(format!("OpenAI upstream error {}", status.as_u16())));
         }
 
-        let json: serde_json::Value = resp.json().await
+        let response: OpenAIChatCompletionResponse = resp
+            .json()
+            .await
             .map_err(|error| AppError::Provider(format!("OpenAI response decode failed: {error}")))?;
-
-        let content = json["choices"][0]["message"]["content"]
-            .as_str()
-            .unwrap_or("")
-            .to_string();
+        let choice = response
+            .choices
+            .into_iter()
+            .next()
+            .ok_or_else(|| AppError::Provider("OpenAI response missing choices[0]".to_string()))?;
 
         Ok(InternalResponse {
-            id: json["id"].as_str().unwrap_or(&Uuid::new_v4().to_string()).to_string(),
-            model: json["model"]
-                .as_str()
-                .unwrap_or(request.model.as_str())
-                .to_string(),
-            content,
-            input_tokens: json["usage"]["prompt_tokens"].as_u64().unwrap_or(0) as u32,
-            output_tokens: json["usage"]["completion_tokens"].as_u64().unwrap_or(0) as u32,
+            id: if response.id.is_empty() {
+                Uuid::new_v4().to_string()
+            } else {
+                response.id
+            },
+            model: response.model,
+            content: choice.message.content,
+            input_tokens: response.usage.prompt_tokens,
+            output_tokens: response.usage.completion_tokens,
         })
     }
 }
