@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-04-10T15:20:00.185Z"
+last_updated: "2026-04-10T15:20:11.597Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 4
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - Initialization: Keep the product CLI-first with a tray app as an optional control surface.
 - Initialization: Treat existing code as scaffold context, not as validated shipped functionality.
 - Initialization: Sequence delivery as core proxy → control plane → tray UI → provider expansion.
+- [Phase 01]: Integration coverage boots the compiled `claw-proxy` binary instead of stubbing the server.
+- [Phase 01]: Startup logs emit only sanitized failure reasons so malformed YAML cannot leak API keys.
 
 ### Pending Todos
 
