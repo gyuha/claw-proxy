@@ -43,7 +43,7 @@ pub fn run() {
                             if window.is_visible().unwrap_or(false) {
                                 let _ = window.hide();
                             } else {
-                                let _ = window.move_window(Position::TrayCenter);
+                                let _ = window.move_window(Position::Center);
                                 let _ = window.show();
                                 let _ = window.set_focus();
                             }
@@ -55,7 +55,7 @@ pub fn run() {
                         "quit" => { app.exit(0); }
                         "show" => {
                             if let Some(window) = app.get_webview_window("main") {
-                                let _ = window.move_window(Position::TrayCenter);
+                                let _ = window.move_window(Position::Center);
                                 let _ = window.show();
                                 let _ = window.set_focus();
                             }
