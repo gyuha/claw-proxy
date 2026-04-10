@@ -37,7 +37,5 @@
   "agent_skills": {},
   "mode": "yolo",
   "granularity": "coarse",
-  "branching_strategy": "none",
-  "quick_branch_template": null,
   "resolve_model_ids": "omit"
 }
