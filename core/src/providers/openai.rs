@@ -1,25 +1,44 @@
 use async_trait::async_trait;
-use crate::normalizer::{InternalRequest, InternalResponse, Role};
-use crate::normalizer::from_openai::{OpenAIContent, OpenAIMessage, OpenAIRequest};
-use crate::error::AppError;
-use super::Provider;
 use uuid::Uuid;
+
+use crate::error::AppError;
+use crate::normalizer::from_openai::{OpenAIContent, OpenAIMessage, OpenAIRequest};
+use crate::normalizer::{InternalRequest, InternalResponse, Role};
+
+use super::Provider;
+
+const OPENAI_BASE_URL: &str = "https://api.openai.com";
 
 pub struct OpenAIProvider {
     name: String,
     api_key: String,
     models: Vec<String>,
+    base_url: String,
     client: reqwest::Client,
 }
 
 impl OpenAIProvider {
     pub fn new(name: String, api_key: String, models: Vec<String>) -> Self {
+        Self::new_with_base_url(name, api_key, models, OPENAI_BASE_URL.to_string())
+    }
+
+    pub fn new_with_base_url(
+        name: String,
+        api_key: String,
+        models: Vec<String>,
+        base_url: String,
+    ) -> Self {
         Self {
             name,
             api_key,
             models,
+            base_url: base_url.trim_end_matches('/').to_string(),
             client: reqwest::Client::new(),
         }
+    }
+
+    fn completion_url(&self) -> String {
+        format!("{}/v1/chat/completions", self.base_url)
     }
 }
 
@@ -64,21 +83,21 @@ impl Provider for OpenAIProvider {
         };
 
         let resp = self.client
-            .post("https://api.openai.com/v1/chat/completions")
+            .post(self.completion_url())
             .bearer_auth(&self.api_key)
             .json(&body)
             .send()
             .await
-            .map_err(|e| AppError::Provider(e.to_string()))?;
+            .map_err(|error| AppError::Provider(format!("OpenAI request failed: {error}")))?;
 
         if !resp.status().is_success() {
             let status = resp.status();
-            let text = resp.text().await.unwrap_or_default();
-            return Err(AppError::Provider(format!("OpenAI error {}: {}", status, text)));
+            let _ = resp.bytes().await;
+            return Err(AppError::Provider(format!("OpenAI upstream error {}", status.as_u16())));
         }
 
         let json: serde_json::Value = resp.json().await
-            .map_err(|e| AppError::Provider(e.to_string()))?;
+            .map_err(|error| AppError::Provider(format!("OpenAI response decode failed: {error}")))?;
 
         let content = json["choices"][0]["message"]["content"]
             .as_str()
@@ -87,7 +106,10 @@ impl Provider for OpenAIProvider {
 
         Ok(InternalResponse {
             id: json["id"].as_str().unwrap_or(&Uuid::new_v4().to_string()).to_string(),
-            model: request.model,
+            model: json["model"]
+                .as_str()
+                .unwrap_or(request.model.as_str())
+                .to_string(),
             content,
             input_tokens: json["usage"]["prompt_tokens"].as_u64().unwrap_or(0) as u32,
             output_tokens: json["usage"]["completion_tokens"].as_u64().unwrap_or(0) as u32,
