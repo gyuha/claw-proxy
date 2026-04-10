@@ -5,8 +5,7 @@
   "identifier": "io.clawproxy.app",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420",
-    "devtools": true
+    "devUrl": "http://localhost:1420"
   },
   "app": {
     "withGlobalTauri": true,
@@ -30,6 +29,10 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all"
+    "targets": "all",
+    "externalBin": [
+      "binaries/claw-proxy-x86_64-apple-darwin",
+      "binaries/claw-proxy-aarch64-apple-darwin"
+    ]
   }
 }

@@ -4,12 +4,27 @@ use tauri::{
     menu::{Menu, MenuItem},
 };
 use tauri_plugin_positioner::{WindowExt, Position};
+use tauri_plugin_shell::ShellExt;
 
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_positioner::init())
         .setup(|app| {
+            // Start the core proxy sidecar
+            let config_path = std::env::var("CLAW_PROXY_CONFIG")
+                .unwrap_or_else(|_| "config.yaml".to_string());
+
+            if let Err(_) = std::env::var("CLAW_PROXY_NO_AUTO_START") {
+                // Only auto-start if not disabled
+                if let Ok(sidecar) = app.shell().sidecar("claw-proxy") {
+                    match sidecar.args([&config_path]).spawn() {
+                        Ok(_) => tracing::info!("claw-proxy sidecar started"),
+                        Err(e) => tracing::error!("Failed to start claw-proxy sidecar: {}", e),
+                    }
+                }
+            }
+
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let show = MenuItem::with_id(app, "show", "Show Window", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &quit])?;
