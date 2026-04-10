@@ -31,7 +31,6 @@
     "active": true,
     "targets": "all",
     "externalBin": [
-      "binaries/claw-proxy-x86_64-apple-darwin",
       "binaries/claw-proxy-aarch64-apple-darwin"
     ]
   }
