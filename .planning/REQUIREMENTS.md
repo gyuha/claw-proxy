@@ -7,7 +7,7 @@
 
 ### Proxy API
 
-- [ ] **PROXY-01**: Developer can run the proxy as a standalone local process by starting the Rust core with a YAML config file.
+- [x] **PROXY-01**: Developer can run the proxy as a standalone local process by starting the Rust core with a YAML config file.
 - [ ] **PROXY-02**: Developer can send OpenAI-compatible requests to `/v1/chat/completions` and receive an OpenAI-compatible response from the proxy.
 - [ ] **PROXY-03**: Developer can send Anthropic-compatible requests to `/v1/messages` and receive an Anthropic-compatible response from the proxy.
 - [ ] **PROXY-04**: Developer can point Claude Code at the proxy with `ANTHROPIC_BASE_URL=http://localhost:<proxy_port>` and keep using the normal Claude workflow.
@@ -76,7 +76,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROXY-01 | Phase 1 | Pending |
+| PROXY-01 | Phase 1 | Complete |
 | PROXY-02 | Phase 1 | Pending |
 | PROXY-03 | Phase 1 | Pending |
 | PROXY-04 | Phase 1 | Pending |

@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Finalize standalone boot, configured-port status reporting, and the shared Phase 1 integration harness.
+- [x] 01-01-PLAN.md — Finalize standalone boot, configured-port status reporting, and the shared Phase 1 integration harness.
 - [ ] 01-02-PLAN.md — Enforce strict text-only normalization, server-side Anthropic model aliasing, protocol-preserving ingress/egress, and the Claude Code gateway count route.
 - [ ] 01-03-PLAN.md — Make the OpenAI adapter mock-upstream testable, sanitize upstream failures, and finish manual smoke verification.
 
