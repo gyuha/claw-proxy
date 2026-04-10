@@ -30,7 +30,9 @@ describe('runtime shell state', () => {
     const { result } = renderHook(() => useRuntimeShellState());
 
     await waitFor(() => expect(initializeRuntimeState).toHaveBeenCalledTimes(1));
-    expect(result.current.snapshot.runtimeStatus).toBe('ready');
+    await waitFor(() =>
+      expect(result.current.snapshot.runtimeStatus).toBe('ready'),
+    );
     expect(result.current.snapshot.providerSlots).toBe(1);
   });
 
@@ -48,7 +50,7 @@ describe('runtime shell state', () => {
 
     await result.current.refresh();
 
-    expect(result.current.snapshot.accountSlots).toBe(4);
+    await waitFor(() => expect(result.current.snapshot.accountSlots).toBe(4));
     expect(result.current.snapshot.activeProfile).toBe('desktop-default');
     expect(result.current.loading).toBe(false);
   });
