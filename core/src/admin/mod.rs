@@ -1,4 +1,4 @@
-use axum::{Router, routing::{get, post, delete}};
+use axum::{Router, routing::get};
 use std::sync::Arc;
 use tokio::sync::broadcast;
 use crate::router::Router as ProxyRouter;
