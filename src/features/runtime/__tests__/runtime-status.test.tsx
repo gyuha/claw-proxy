@@ -2,9 +2,24 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useRuntimeShellState } from '../state';
+import type { RuntimeSnapshot } from '../models';
 
 const initializeRuntimeState = vi.fn();
 const getRuntimeSnapshot = vi.fn();
+
+function createRuntimeSnapshot(
+  overrides: Partial<RuntimeSnapshot> = {},
+): RuntimeSnapshot {
+  return {
+    accountSlots: 2,
+    activeProfile: 'desktop-default',
+    appReady: true,
+    lastHealthCheck: '1712793600',
+    providerSlots: 1,
+    runtimeStatus: 'ready',
+    ...overrides,
+  };
+}
 
 vi.mock('../api', () => ({
   getRuntimeSnapshot: () => getRuntimeSnapshot(),
@@ -18,14 +33,7 @@ describe('runtime shell state', () => {
   });
 
   it('initializes the shell through typed runtime helpers', async () => {
-    initializeRuntimeState.mockResolvedValue({
-      accountSlots: 2,
-      activeProfile: 'desktop-default',
-      appReady: true,
-      lastHealthCheck: '1712793600',
-      providerSlots: 1,
-      runtimeStatus: 'ready',
-    });
+    initializeRuntimeState.mockResolvedValue(createRuntimeSnapshot());
 
     const { result } = renderHook(() => useRuntimeShellState());
 
@@ -37,14 +45,12 @@ describe('runtime shell state', () => {
   });
 
   it('exposes snapshot fields in a render-friendly shape', async () => {
-    getRuntimeSnapshot.mockResolvedValue({
-      accountSlots: 4,
-      activeProfile: 'desktop-default',
-      appReady: true,
-      lastHealthCheck: '1712793600',
-      providerSlots: 3,
-      runtimeStatus: 'ready',
-    });
+    getRuntimeSnapshot.mockResolvedValue(
+      createRuntimeSnapshot({
+        accountSlots: 4,
+        providerSlots: 3,
+      }),
+    );
 
     const { result } = renderHook(() => useRuntimeShellState());
 
