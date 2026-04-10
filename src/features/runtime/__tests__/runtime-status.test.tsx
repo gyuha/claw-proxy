@@ -31,6 +31,7 @@ describe('runtime shell state', () => {
   beforeEach(() => {
     initializeRuntimeState.mockReset();
     getRuntimeSnapshot.mockReset();
+    initializeRuntimeState.mockResolvedValue(createRuntimeSnapshot());
   });
 
   it('initializes the shell through typed runtime helpers', async () => {
