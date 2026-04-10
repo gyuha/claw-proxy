@@ -14,8 +14,8 @@ pub async fn status(State(state): State<AdminState>) -> Json<StatusResponse> {
     Json(StatusResponse {
         status: "running".to_string(),
         uptime_secs: state.start_time.elapsed().as_secs(),
-        proxy_port: 47380,
-        admin_port: 47381,
+        proxy_port: state.proxy_port,
+        admin_port: state.admin_port,
     })
 }
 

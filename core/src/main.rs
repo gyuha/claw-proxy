@@ -38,6 +38,8 @@ async fn main() {
         router: Arc::clone(&router),
         log_tx,
         start_time: std::time::Instant::now(),
+        proxy_port: config.server.proxy_port,
+        admin_port: config.server.admin_port,
     };
     let admin_app = claw_proxy_core::admin::create_router(admin_state);
     let admin_addr = format!("127.0.0.1:{}", config.server.admin_port);

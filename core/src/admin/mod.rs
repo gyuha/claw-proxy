@@ -24,6 +24,8 @@ pub struct AdminState {
     pub router: Arc<ProxyRouter>,
     pub log_tx: broadcast::Sender<LogEntry>,
     pub start_time: std::time::Instant,
+    pub proxy_port: u16,
+    pub admin_port: u16,
 }
 
 pub fn create_router(state: AdminState) -> Router {
