@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import {
-  getRuntimeSnapshot,
-  initializeRuntimeState,
-  type RuntimePingResponse,
-} from './api';
+import { getRuntimeSnapshot, initializeRuntimeState } from './api';
 import { createInitialRuntimeSnapshot, type RuntimeSnapshot } from './models';
 
 interface RuntimeShellState {
   error: string | null;
   loading: boolean;
-  ping: RuntimePingResponse | null;
   refresh: () => Promise<void>;
   snapshot: RuntimeSnapshot;
 }
@@ -29,7 +24,6 @@ export function useRuntimeShellState(): RuntimeShellState {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [ping, setPing] = useState<RuntimePingResponse | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -79,7 +73,6 @@ export function useRuntimeShellState(): RuntimeShellState {
   return {
     error,
     loading,
-    ping,
     refresh,
     snapshot,
   };

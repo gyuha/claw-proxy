@@ -1,6 +1,7 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import AppShell from '../../../components/shell/AppShell';
 import { useRuntimeShellState } from '../state';
 import type { RuntimeSnapshot } from '../models';
 
@@ -59,5 +60,15 @@ describe('runtime shell state', () => {
     await waitFor(() => expect(result.current.snapshot.accountSlots).toBe(4));
     expect(result.current.snapshot.activeProfile).toBe('desktop-default');
     expect(result.current.loading).toBe(false);
+  });
+
+  it('renders the control-plane shell with runtime-driven sections', () => {
+    const { getAllByText, getByText } = render(
+      <AppShell error={null} loading={false} snapshot={createRuntimeSnapshot()} />,
+    );
+
+    expect(getByText('Claw Proxy')).toBeInTheDocument();
+    expect(getAllByText('Providers')).toHaveLength(2);
+    expect(getByText('Runtime authority online')).toBeInTheDocument();
   });
 });
