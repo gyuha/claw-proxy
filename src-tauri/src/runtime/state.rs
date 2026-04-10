@@ -49,3 +49,21 @@ fn current_health_marker() -> String {
         .as_secs()
         .to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::AppRuntimeState;
+    use crate::models::runtime_snapshot::RuntimeStatus;
+
+    #[test]
+    fn runtime_state_initialization_promotes_snapshot_to_ready() {
+        let state = AppRuntimeState::new();
+
+        let snapshot = state.initialize();
+
+        assert!(snapshot.app_ready);
+        assert_eq!(snapshot.runtime_status, RuntimeStatus::Ready);
+        assert_eq!(snapshot.active_profile.as_deref(), Some("desktop-default"));
+        assert!(snapshot.last_health_check.is_some());
+    }
+}

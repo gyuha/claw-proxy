@@ -37,3 +37,19 @@ pub fn initialize_runtime_state(state: State<'_, AppRuntimeState>) -> RuntimeSna
 pub fn ping_runtime(state: State<'_, AppRuntimeState>) -> RuntimePingResponse {
     ping_runtime_for_test(state.inner())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ping_runtime_for_test;
+    use crate::runtime::state::AppRuntimeState;
+
+    #[test]
+    fn ping_runtime_reports_host_reachability() {
+        let state = AppRuntimeState::new();
+
+        let ping = ping_runtime_for_test(&state);
+
+        assert!(ping.reachable);
+        assert_eq!(ping.status, "ok");
+    }
+}
