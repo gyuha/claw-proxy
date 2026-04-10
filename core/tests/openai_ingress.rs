@@ -8,7 +8,7 @@ use axum::{
 use claw_proxy_core::{
     config::RoutingStrategy,
     error::AppError,
-    normalizer::{ApiFormat, InternalRequest, InternalResponse},
+    normalizer::{InternalRequest, InternalResponse},
     providers::Provider,
     proxy::{create_router, AppState},
     router::Router as ProxyRouter,
@@ -50,13 +50,15 @@ impl Provider for MockProvider {
 }
 
 #[tokio::test]
-#[ignore = "Enabled in Task 3 once strict ingress routing is wired"]
 async fn openai_chat_completion_roundtrip() {
     let router = Arc::new(ProxyRouter::new(
         vec![Box::new(MockProvider)],
         RoutingStrategy::RoundRobin,
     ));
-    let app = create_router(AppState { router });
+    let app = create_router(AppState {
+        router,
+        anthropic_alias_model: "gpt-4o".to_string(),
+    });
 
     let response = app
         .oneshot(
@@ -88,5 +90,5 @@ async fn openai_chat_completion_roundtrip() {
 
     assert_eq!(payload["object"], "chat.completion");
     assert_eq!(payload["choices"][0]["message"]["content"], "echo: Hello from OpenAI");
-    assert!(matches!(ApiFormat::OpenAI, ApiFormat::OpenAI));
+    assert_eq!(payload["choices"][0]["message"]["role"], "assistant");
 }

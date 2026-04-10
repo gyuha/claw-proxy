@@ -1,5 +1,6 @@
 use std::{io, path::PathBuf, sync::Arc};
 
+use claw_proxy_core::config::ProviderType;
 use claw_proxy_core::error::{AppError, Result};
 use tokio::sync::broadcast;
 use tracing_subscriber::EnvFilter;
@@ -31,11 +32,23 @@ async fn run() -> Result<()> {
         providers,
         config.routing.strategy.clone(),
     ));
+    let anthropic_alias_model = config
+        .providers
+        .iter()
+        .find_map(|provider| {
+            (provider.provider_type == ProviderType::OpenAI)
+                .then(|| provider.models.first().cloned())
+                .flatten()
+        })
+        .unwrap_or_default();
 
     let (log_tx, _) = broadcast::channel(256);
 
     // Proxy server
-    let proxy_state = claw_proxy_core::proxy::AppState { router: Arc::clone(&router) };
+    let proxy_state = claw_proxy_core::proxy::AppState {
+        router: Arc::clone(&router),
+        anthropic_alias_model,
+    };
     let proxy_app = claw_proxy_core::proxy::create_router(proxy_state);
     let proxy_addr = format!("127.0.0.1:{}", config.server.proxy_port);
 

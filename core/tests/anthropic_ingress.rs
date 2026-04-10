@@ -59,7 +59,6 @@ impl Provider for MockProvider {
 }
 
 #[tokio::test]
-#[ignore = "Enabled in Task 3 once Anthropic aliasing is wired"]
 async fn anthropic_messages_roundtrip() {
     let capture = Capture::default();
     let router = Arc::new(ProxyRouter::new(
@@ -68,7 +67,10 @@ async fn anthropic_messages_roundtrip() {
         })],
         RoutingStrategy::RoundRobin,
     ));
-    let app = create_router(AppState { router });
+    let app = create_router(AppState {
+        router,
+        anthropic_alias_model: "gpt-4o".to_string(),
+    });
 
     let response = app
         .oneshot(
@@ -104,7 +106,6 @@ async fn anthropic_messages_roundtrip() {
 }
 
 #[tokio::test]
-#[ignore = "Enabled in Task 3 once the gateway contract is implemented"]
 async fn anthropic_gateway_contract() {
     let capture = Capture::default();
     let router = Arc::new(ProxyRouter::new(
@@ -113,7 +114,10 @@ async fn anthropic_gateway_contract() {
         })],
         RoutingStrategy::RoundRobin,
     ));
-    let app = create_router(AppState { router });
+    let app = create_router(AppState {
+        router,
+        anthropic_alias_model: "gpt-4o".to_string(),
+    });
 
     let messages_response = app
         .clone()
@@ -173,6 +177,7 @@ async fn anthropic_gateway_contract() {
             vec![Box::new(MockProvider { capture })],
             RoutingStrategy::RoundRobin,
         )),
+        anthropic_alias_model: "gpt-4o".to_string(),
     })
     .oneshot(
         Request::builder()
@@ -193,4 +198,14 @@ async fn anthropic_gateway_contract() {
     .expect("missing header response");
 
     assert_eq!(missing_header_response.status(), StatusCode::BAD_REQUEST);
+    let missing_header_body = to_bytes(missing_header_response.into_body(), usize::MAX)
+        .await
+        .expect("body");
+    let missing_header_payload: serde_json::Value =
+        serde_json::from_slice(&missing_header_body).expect("json");
+    assert_eq!(missing_header_payload["type"], "error");
+    assert_eq!(
+        missing_header_payload["error"]["type"],
+        "invalid_request_error"
+    );
 }
