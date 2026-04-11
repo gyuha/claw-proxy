@@ -47,9 +47,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Implement local proxy ingress, lifecycle commands, and runtime supervision
-- [ ] 02-02: Build runtime settings editing, validation, and SQLite-backed non-secret persistence
-- [ ] 02-03: Expose health checks, lifecycle events, and runtime status to the UI
+- [ ] 02-01-PLAN.md — Define supervised proxy contracts and health foundation
+- [ ] 02-02-PLAN.md — Persist proxy settings and expose safe lifecycle commands
+- [ ] 02-03-PLAN.md — Build the proxy control surface and live status UI
 
 ### Phase 3: Provider Security Gate
 **Goal**: Let users connect providers and manage credentials/accounts securely on their machine
