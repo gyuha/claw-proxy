@@ -6,6 +6,8 @@ export const proxyRuntimeStatusValues = [
 ] as const;
 
 export type ProxyRuntimeStatus = (typeof proxyRuntimeStatusValues)[number];
+export const loopbackHostOptions = ['localhost', '127.0.0.1', '::1'] as const;
+export type ProxyListenHost = (typeof loopbackHostOptions)[number];
 
 export interface SerializedProxySettings {
   base_endpoint: string;
@@ -41,12 +43,16 @@ const defaultProxySettings = {
   listenPort: 8787,
 } satisfies ProxySettings;
 
+export function createInitialProxySettings(): ProxySettings {
+  return { ...defaultProxySettings };
+}
+
 export function createInitialProxyRuntimeSnapshot(): ProxyRuntimeSnapshot {
   return {
-    effectiveBaseUrl: buildEffectiveBaseUrl(defaultProxySettings),
+    effectiveBaseUrl: buildProxyEffectiveBaseUrl(defaultProxySettings),
     lastError: null,
     lastTransitionAt: null,
-    settings: { ...defaultProxySettings },
+    settings: createInitialProxySettings(),
     status: 'stopped',
   };
 }
@@ -67,7 +73,8 @@ export function normalizeProxyRuntimeSnapshot(
   const settings = normalizeProxySettings(snapshot.settings);
 
   return {
-    effectiveBaseUrl: snapshot.effective_base_url || buildEffectiveBaseUrl(settings),
+    effectiveBaseUrl:
+      snapshot.effective_base_url || buildProxyEffectiveBaseUrl(settings),
     lastError: snapshot.last_error,
     lastTransitionAt: snapshot.last_transition_at,
     settings,
@@ -75,7 +82,7 @@ export function normalizeProxyRuntimeSnapshot(
   };
 }
 
-function buildEffectiveBaseUrl(settings: ProxySettings): string {
+export function buildProxyEffectiveBaseUrl(settings: ProxySettings): string {
   const authority =
     settings.listenHost === '::1' ? `[${settings.listenHost}]` : settings.listenHost;
 
