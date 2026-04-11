@@ -1,9 +1,9 @@
 ---
 phase: 2
 slug: proxy-control-surface
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: ready
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-11
 ---
 
@@ -19,18 +19,18 @@ created: 2026-04-11
 |----------|-------|
 | **Framework** | Vitest 3.2.4 for frontend behavior and `cargo test` for Rust host modules |
 | **Config file** | `vitest.config.ts` for frontend; Rust uses the built-in test harness under `src-tauri` |
-| **Quick run command** | `pnpm vitest run src/features/proxy/__tests__/proxy-controls.test.tsx src/features/proxy/__tests__/proxy-runtime-status.test.tsx && cargo test --manifest-path src-tauri/Cargo.toml proxy_` |
+| **Quick run command** | `cargo test --manifest-path src-tauri/Cargo.toml proxy_settings_` or `cargo test --manifest-path src-tauri/Cargo.toml proxy_runtime_` or `pnpm vitest run src/features/proxy/__tests__/proxy-controls.test.tsx` |
 | **Full suite command** | `pnpm vitest run && cargo test --manifest-path src-tauri/Cargo.toml && pnpm tauri build --debug` |
-| **Estimated runtime** | ~120-180 seconds |
+| **Estimated runtime** | ~10-30 seconds quick, ~120-180 seconds full |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run `pnpm vitest run <focused proxy tests> && cargo test --manifest-path src-tauri/Cargo.toml <focused proxy module>`
+- **After every task commit:** Run exactly one focused command for the touched surface only: `cargo test --manifest-path src-tauri/Cargo.toml proxy_settings_`, `cargo test --manifest-path src-tauri/Cargo.toml proxy_runtime_`, or `pnpm vitest run src/features/proxy/__tests__/proxy-controls.test.tsx`
 - **After every plan wave:** Run `pnpm vitest run && cargo test --manifest-path src-tauri/Cargo.toml`
 - **Before `/gsd-verify-work`:** Run `pnpm vitest run && cargo test --manifest-path src-tauri/Cargo.toml && pnpm tauri build --debug`
-- **Max feedback latency:** 180 seconds
+- **Max feedback latency:** 30 seconds for focused task checks, 180 seconds for full wave/phase gates
 
 ---
 
@@ -38,9 +38,9 @@ created: 2026-04-11
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 2-01-01 | 01 | 1 | PROX-01 | T-2-01 | Runtime lifecycle commands start, stop, and restart only through the Rust supervisor | Rust unit + integration | `cargo test --manifest-path src-tauri/Cargo.toml proxy_runtime_supervision` | ❌ W0 | ⬜ pending |
-| 2-02-01 | 02 | 2 | PROX-02, PROX-03 | T-2-02 / T-2-03 | Host, port, and base endpoint are validated in Rust, persisted in SQLite, and applied without renderer-side file edits | Rust unit + integration | `cargo test --manifest-path src-tauri/Cargo.toml proxy_settings_validation proxy_settings_apply` | ❌ W0 | ⬜ pending |
-| 2-03-01 | 03 | 3 | PROX-04 | T-2-04 | UI reflects healthy, stopped, and misconfigured states from host-owned snapshot refreshes and lifecycle events | Frontend integration + build smoke | `pnpm vitest run src/features/proxy/__tests__/proxy-runtime-status.test.tsx src/features/proxy/__tests__/proxy-controls.test.tsx && pnpm tauri build --debug` | ❌ W0 | ⬜ pending |
+| 2-01-01 | 01 | 1 | PROX-01, PROX-02, PROX-04 | T-2-01 / T-2-02 / T-2-03 | Runtime lifecycle, loopback-only settings validation, and misconfigured-state semantics are established before command wiring | Rust unit + frontend contract | `cargo test --manifest-path src-tauri/Cargo.toml proxy_settings_` or `cargo test --manifest-path src-tauri/Cargo.toml proxy_runtime_` or `pnpm vitest run src/features/proxy/models.test.ts` | ✅ planned via 02-01 Task 1-2 | ⬜ pending |
+| 2-02-01 | 02 | 2 | PROX-01, PROX-02, PROX-03, PROX-04 | T-2-04 / T-2-05 / T-2-06 | Typed lifecycle/apply commands persist only validated good settings and preserve the last known good config on failure | Rust integration | `cargo test --manifest-path src-tauri/Cargo.toml proxy_persistence_` or `cargo test --manifest-path src-tauri/Cargo.toml proxy_settings_apply` | ✅ planned via 02-02 Task 1-2 | ⬜ pending |
+| 2-03-01 | 03 | 3 | PROX-01, PROX-02, PROX-03, PROX-04 | T-2-07 / T-2-08 / T-2-09 | UI refreshes from canonical commands, exposes start/stop/apply flows, and renders healthy/stopped/misconfigured states without trusting event payloads | Frontend integration + build smoke | `pnpm vitest run src/features/proxy/__tests__/proxy-controls.test.tsx` or `pnpm vitest run src/features/proxy/__tests__/proxy-runtime-status.test.tsx` | ✅ planned via 02-03 Task 1-2 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -54,6 +54,12 @@ created: 2026-04-11
 - [ ] `src/features/proxy/__tests__/proxy-controls.test.tsx` for form edit/apply and disabled-state behavior
 - [ ] `src/features/proxy/__tests__/proxy-runtime-status.test.tsx` for healthy/stopped/misconfigured rendering and event refresh behavior
 
+Wave 0 mapping:
+- `02-01` Task 1 creates `src/features/proxy/models.test.ts` and the Rust proxy contract tests.
+- `02-01` Task 2 creates the supervised runtime tests and runtime-state verification hooks.
+- `02-02` Task 1 creates persistence and migration coverage for SQLite-backed settings.
+- `02-03` Task 1 creates `proxy-controls.test.tsx` and `proxy-runtime-status.test.tsx`.
+
 ---
 
 ## Manual-Only Verifications
@@ -66,11 +72,11 @@ created: 2026-04-11
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 180s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s for focused checks
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-04-11

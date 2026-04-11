@@ -263,22 +263,19 @@ unlisten();
 | A6 | Loopback-first defaults with explicit user intent for broader exposure are the right safe default for the host field [ASSUMED] | Open Questions / Security Domain | The shipped UX and access-control posture could conflict with product intent |
 | A7 | “Apply safely” may need rollback-safe reconfiguration semantics while the runtime is already running, not just pre-persistence validation [ASSUMED] | Open Questions | Plan scope could under-specify lifecycle safety and lead to visible downtime behavior |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **What exactly is the “base endpoint” field?**
-   - What we know: The roadmap and requirements call it out separately from host and port [VERIFIED: .planning/ROADMAP.md] [VERIFIED: .planning/REQUIREMENTS.md].
-   - What’s unclear: Whether it should be a path prefix like `/v1`, a full absolute local URL, or a user-facing alias shown in onboarding copy [ASSUMED].
-   - Recommendation: Lock this before planning UI and validation details; a path-prefix interpretation keeps Phase 2 narrower and aligns better with later compatibility routing [ASSUMED].
+1. **Base endpoint semantics**
+   - Decision: treat `base endpoint` as the local proxy path prefix / canonical local base URL component, not as an upstream provider URL [LOCKED FOR PHASE 2].
+   - Execution impact: normalize it to a leading-slash path such as `/v1`, validate it in Rust, store it with the rest of the proxy settings, and derive the effective local URL from `listen_host`, `listen_port`, and `base_endpoint`.
 
-2. **Should v1 allow non-loopback bind hosts?**
-   - What we know: Users must be able to configure the listen host from the UI [VERIFIED: .planning/REQUIREMENTS.md].
-   - What’s unclear: Whether that means any valid host/IP or only safe local defaults unless the user explicitly opts into LAN exposure [ASSUMED].
-   - Recommendation: Default to `127.0.0.1`, show clear warning copy for non-loopback values, and treat unrestricted exposure as an explicit user action if the team wants it in scope [ASSUMED].
+2. **Allowed bind hosts in v1**
+   - Decision: Phase 2 supports loopback-only bind hosts: `localhost`, `127.0.0.1`, and `::1` [LOCKED FOR PHASE 2].
+   - Execution impact: non-loopback values such as `0.0.0.0` stay out of scope for this phase, reduce accidental LAN exposure risk, and can be revisited in a later phase with explicit security/product handling.
 
-3. **Does Phase 2 need rollback-safe apply while the runtime is already running?**
-   - What we know: Users must apply config changes safely from the app [VERIFIED: .planning/ROADMAP.md].
-   - What’s unclear: Whether “safe” means “validated before persistence” only, or “running proxy never stays down after a failed reconfigure” [ASSUMED].
-   - Recommendation: Plan for rollback-safe apply if time allows; otherwise make “stop, edit, apply, start” explicit in the first implementation and keep the old config until the candidate config proves valid [ASSUMED].
+3. **Meaning of “apply safely”**
+   - Decision: Phase 2 requires validate-before-persist plus last-known-good preservation on failed apply; a candidate config must validate and successfully start/restart before it replaces the persisted good config [LOCKED FOR PHASE 2].
+   - Execution impact: invalid candidate settings must surface a `misconfigured` state without forcing manual file edits and without overwriting the previous valid config.
 
 ## Environment Availability
 
