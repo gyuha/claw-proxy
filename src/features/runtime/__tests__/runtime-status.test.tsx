@@ -2,6 +2,7 @@ import { render, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AppShell from '../../../components/shell/AppShell';
+import type { ProxyControlState } from '../../proxy/state';
 import { useRuntimeShellState } from '../state';
 import type { RuntimeSnapshot } from '../models';
 
@@ -26,6 +27,39 @@ vi.mock('../api', () => ({
   getRuntimeSnapshot: () => getRuntimeSnapshot(),
   initializeRuntimeState: () => initializeRuntimeState(),
 }));
+
+function createProxyControlState(
+  overrides: Partial<ProxyControlState> = {},
+): ProxyControlState {
+  return {
+    applySettings: vi.fn().mockResolvedValue(undefined),
+    draft: {
+      baseEndpoint: '/v1',
+      listenHost: '127.0.0.1',
+      listenPort: 8787,
+    },
+    error: null,
+    hostOptions: ['localhost', '127.0.0.1', '::1'],
+    isApplying: false,
+    loading: false,
+    refresh: vi.fn().mockResolvedValue(undefined),
+    snapshot: {
+      effectiveBaseUrl: 'http://127.0.0.1:8787/v1',
+      lastError: null,
+      lastTransitionAt: '1712793600',
+      settings: {
+        baseEndpoint: '/v1',
+        listenHost: '127.0.0.1',
+        listenPort: 8787,
+      },
+      status: 'stopped',
+    },
+    startProxy: vi.fn().mockResolvedValue(undefined),
+    stopProxy: vi.fn().mockResolvedValue(undefined),
+    updateDraft: vi.fn(),
+    ...overrides,
+  };
+}
 
 describe('runtime shell state', () => {
   beforeEach(() => {
@@ -65,7 +99,12 @@ describe('runtime shell state', () => {
 
   it('renders the control-plane shell with runtime-driven sections', () => {
     const { getAllByText, getByText } = render(
-      <AppShell error={null} loading={false} snapshot={createRuntimeSnapshot()} />,
+      <AppShell
+        error={null}
+        loading={false}
+        proxy={createProxyControlState()}
+        snapshot={createRuntimeSnapshot()}
+      />,
     );
 
     expect(getByText('Claw Proxy')).toBeInTheDocument();
