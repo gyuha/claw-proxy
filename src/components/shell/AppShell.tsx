@@ -1,9 +1,13 @@
+import type { ProxyControlState } from '../../features/proxy/state';
 import type { RuntimeSnapshot } from '../../features/runtime/models';
+import ProxyControlPanel from '../proxy/ProxyControlPanel';
+import ProxySettingsForm from '../proxy/ProxySettingsForm';
 import RuntimeStatusCard from '../status/RuntimeStatusCard';
 
 interface AppShellProps {
   error: string | null;
   loading: boolean;
+  proxy: ProxyControlState;
   snapshot: RuntimeSnapshot;
 }
 
@@ -28,6 +32,7 @@ const futureAreas = [
 export default function AppShell({
   error,
   loading,
+  proxy,
   snapshot,
 }: AppShellProps) {
   return (
@@ -57,17 +62,36 @@ export default function AppShell({
         </header>
 
         <section className="app-shell__content">
-          <RuntimeStatusCard error={error} loading={loading} snapshot={snapshot} />
+          <div className="app-shell__primary">
+            <RuntimeStatusCard error={error} loading={loading} snapshot={snapshot} />
+            <ProxyControlPanel
+              busy={proxy.loading || proxy.isApplying}
+              error={proxy.error}
+              onStart={proxy.startProxy}
+              onStop={proxy.stopProxy}
+              snapshot={proxy.snapshot}
+            />
+          </div>
 
-          <section aria-label="Future product areas" className="future-grid">
-            {futureAreas.map((area) => (
-              <article key={area.name} className="future-card">
-                <p className="eyebrow eyebrow--muted">Upcoming area</p>
-                <h2>{area.name}</h2>
-                <p>{area.description}</p>
-              </article>
-            ))}
-          </section>
+          <div className="app-shell__secondary">
+            <ProxySettingsForm
+              busy={proxy.loading || proxy.isApplying}
+              draft={proxy.draft}
+              hostOptions={proxy.hostOptions}
+              onApply={proxy.applySettings}
+              onDraftChange={proxy.updateDraft}
+            />
+
+            <section aria-label="Future product areas" className="future-grid">
+              {futureAreas.map((area) => (
+                <article key={area.name} className="future-card">
+                  <p className="eyebrow eyebrow--muted">Upcoming area</p>
+                  <h2>{area.name}</h2>
+                  <p>{area.description}</p>
+                </article>
+              ))}
+            </section>
+          </div>
         </section>
       </section>
     </main>

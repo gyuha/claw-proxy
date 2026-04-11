@@ -126,10 +126,24 @@ select {
   grid-template-columns: minmax(320px, 1.1fr) minmax(0, 0.9fr);
 }
 
+.app-shell__primary,
+.app-shell__secondary {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
 .runtime-card {
   padding: 28px;
   background:
     linear-gradient(180deg, rgba(246, 245, 244, 0.66) 0%, rgba(255, 255, 255, 0.94) 100%);
+}
+
+.proxy-card,
+.proxy-form {
+  padding: 28px;
+  background:
+    linear-gradient(180deg, rgba(246, 245, 244, 0.72) 0%, rgba(255, 255, 255, 0.96) 100%);
 }
 
 .runtime-card__header {
@@ -139,7 +153,17 @@ select {
   gap: 16px;
 }
 
+.proxy-card__header,
+.proxy-form__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
 .runtime-card__header h2,
+.proxy-card__header h2,
+.proxy-form__header h2,
 .future-card h2 {
   margin: 8px 0 0;
   font-size: 1.45rem;
@@ -148,9 +172,18 @@ select {
 }
 
 .runtime-card__description,
+.proxy-card__description,
 .future-card p {
   margin: 14px 0 0;
   color: #615d59;
+}
+
+.proxy-form__note {
+  max-width: 15rem;
+  margin: 4px 0 0;
+  color: #615d59;
+  font-size: 0.92rem;
+  text-align: right;
 }
 
 .runtime-card__stats {
@@ -160,7 +193,19 @@ select {
   gap: 16px;
 }
 
+.proxy-card__stats {
+  margin: 24px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .runtime-card__stats div {
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.proxy-card__stats div {
   padding-top: 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -214,9 +259,106 @@ select {
   color: #dd5b00;
 }
 
+.status-pill--healthy {
+  background: rgba(42, 157, 153, 0.12);
+  color: #2a9d99;
+}
+
+.status-pill--misconfigured {
+  background: rgba(221, 91, 0, 0.12);
+  color: #dd5b00;
+}
+
 .status-pill--error {
   background: rgba(221, 91, 0, 0.12);
   color: #dd5b00;
+}
+
+.proxy-card__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.proxy-button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.proxy-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.proxy-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.proxy-button--primary {
+  background: #0075de;
+  color: #ffffff;
+}
+
+.proxy-button--secondary {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.95);
+}
+
+.proxy-form__fields {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.proxy-field {
+  display: grid;
+  gap: 8px;
+}
+
+.proxy-field span,
+.proxy-preview__label,
+.proxy-card__stats dt {
+  display: block;
+  margin-bottom: 4px;
+  color: #a39e98;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.proxy-field input,
+.proxy-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(0, 0, 0, 0.95);
+}
+
+.proxy-preview {
+  margin: 20px 0;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f6f5f4;
+}
+
+.proxy-preview strong,
+.proxy-card__stats dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 @media (max-width: 920px) {
@@ -227,6 +369,16 @@ select {
 
   .runtime-card__header {
     flex-direction: column;
+  }
+
+  .proxy-card__header,
+  .proxy-form__header {
+    flex-direction: column;
+  }
+
+  .proxy-form__note {
+    max-width: none;
+    text-align: left;
   }
 }
 
@@ -243,5 +395,13 @@ select {
 
   .runtime-card__stats {
     grid-template-columns: 1fr;
+  }
+
+  .proxy-card__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .proxy-card__actions {
+    flex-direction: column;
   }
 }
