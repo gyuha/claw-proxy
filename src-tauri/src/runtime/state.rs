@@ -99,9 +99,7 @@ impl AppRuntimeState {
     }
 
     pub async fn start_proxy_runtime(&self, settings: ProxySettings) -> ProxyRuntimeSnapshot {
-        let _ = self.proxy_supervisor.stop().await;
-
-        let fallback_settings = self.proxy_snapshot().settings;
+        let fallback_settings = self.last_known_good_proxy_settings();
         let normalized = match settings.normalized() {
             Ok(normalized) => normalized,
             Err(error) => {
@@ -115,6 +113,8 @@ impl AppRuntimeState {
                 return snapshot;
             }
         };
+
+        let _ = self.proxy_supervisor.stop().await;
 
         self.store_proxy_snapshot(ProxyRuntimeSnapshot::new(
             ProxyRuntimeStatus::Starting,
@@ -138,7 +138,7 @@ impl AppRuntimeState {
             Err(error) => {
                 let snapshot = ProxyRuntimeSnapshot::new(
                     ProxyRuntimeStatus::Misconfigured,
-                    normalized,
+                    fallback_settings,
                     Some(error.to_string()),
                     Some(current_health_marker()),
                 );
@@ -163,6 +163,21 @@ impl AppRuntimeState {
 
     pub async fn proxy_runtime_is_running(&self) -> bool {
         self.proxy_supervisor.is_running().await
+    }
+
+    pub fn mark_proxy_misconfigured(
+        &self,
+        settings: ProxySettings,
+        last_error: impl Into<String>,
+    ) -> ProxyRuntimeSnapshot {
+        let snapshot = ProxyRuntimeSnapshot::new(
+            ProxyRuntimeStatus::Misconfigured,
+            settings,
+            Some(last_error.into()),
+            Some(current_health_marker()),
+        );
+        self.store_proxy_snapshot(snapshot.clone());
+        snapshot
     }
 
     fn store_proxy_snapshot(&self, snapshot: ProxyRuntimeSnapshot) {
