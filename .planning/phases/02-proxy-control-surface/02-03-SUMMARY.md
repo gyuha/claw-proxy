@@ -95,11 +95,11 @@ None. The final UI and hook structure matched the plan’s shell-contained contr
 - `pnpm vitest run src/features/proxy/__tests__/proxy-controls.test.tsx src/features/proxy/__tests__/proxy-runtime-status.test.tsx src/features/runtime/__tests__/runtime-status.test.tsx`
 - `cargo test --manifest-path src-tauri/Cargo.toml proxy_`
 - `npm run build`
-- `npm run desktop:build` completed the release app build and `.app` bundle, but failed during the final DMG bundling script
+- `npm run desktop:build` produced both `src-tauri/target/release/bundle/macos/Claw Proxy.app` and `src-tauri/target/release/bundle/dmg/Claw Proxy_0.1.0_aarch64.dmg`
 
 ## Issues Encountered
 
-- `npm run desktop:build` built the release binary and macOS app bundle successfully, then failed at the final DMG packaging step (`bundle_dmg.sh`). The implementation itself compiled and bundled into `src-tauri/target/release/bundle/macos/Claw Proxy.app`, so this appears to be an environment or packaging-stage issue rather than a renderer/host integration failure.
+- An earlier `npm run desktop:build` attempt stalled during DMG packaging, but fresh verification completed successfully and produced both the macOS app bundle and DMG without requiring additional code changes.
 
 ## User Setup Required
 

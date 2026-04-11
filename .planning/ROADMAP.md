@@ -13,7 +13,7 @@ Claw Proxy should be built as a Tauri 2 desktop app with an embedded Rust runtim
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Runtime Foundation** - Establish the embedded Rust runtime, typed control-plane boundary, and minimal shell
-- [ ] **Phase 2: Proxy Control Surface** - Run, configure, and monitor the local proxy lifecycle from the desktop app
+- [x] **Phase 2: Proxy Control Surface** - Run, configure, and monitor the local proxy lifecycle from the desktop app
 - [ ] **Phase 3: Provider Security Gate** - Add secure provider/account onboarding and local credential storage
 - [ ] **Phase 4: Routing Compatibility Gate** - Deliver multi-account routing, failover, and tool-facing compatibility endpoints
 - [ ] **Phase 5: Diagnostics & Onboarding** - Make failures understandable and onboarding smooth with logs, status, and guided setup
@@ -47,9 +47,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Define supervised proxy contracts and health foundation
-- [ ] 02-02-PLAN.md — Persist proxy settings and expose safe lifecycle commands
-- [ ] 02-03-PLAN.md — Build the proxy control surface and live status UI
+- [x] 02-01-PLAN.md — Define supervised proxy contracts and health foundation
+- [x] 02-02-PLAN.md — Persist proxy settings and expose safe lifecycle commands
+- [x] 02-03-PLAN.md — Build the proxy control surface and live status UI
 
 ### Phase 3: Provider Security Gate
 **Goal**: Let users connect providers and manage credentials/accounts securely on their machine
@@ -119,8 +119,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Runtime Foundation | 0/3 | Not started | - |
-| 2. Proxy Control Surface | 0/3 | Not started | - |
+| 1. Runtime Foundation | 3/3 | Human verification | - |
+| 2. Proxy Control Surface | 3/3 | Complete | 2026-04-11 |
 | 3. Provider Security Gate | 0/3 | Not started | - |
 | 4. Routing Compatibility Gate | 0/3 | Not started | - |
 | 5. Diagnostics & Onboarding | 0/3 | Not started | - |
