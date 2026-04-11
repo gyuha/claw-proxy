@@ -159,7 +159,9 @@ fn current_health_marker() -> String {
 #[cfg(test)]
 mod tests {
     use super::AppRuntimeState;
+    use crate::models::proxy_settings::ProxySettings;
     use crate::models::runtime_snapshot::RuntimeStatus;
+    use tempfile::tempdir;
 
     #[test]
     fn runtime_state_initialization_promotes_snapshot_to_ready() {
@@ -185,5 +187,25 @@ mod tests {
             state.last_known_good_proxy_settings(),
             crate::models::proxy_settings::ProxySettings::default()
         );
+    }
+
+    #[test]
+    fn proxy_persistence_state_loads_persisted_settings_into_runtime_state() {
+        let tempdir = tempdir().expect("temp directory");
+        let persisted = ProxySettings {
+            listen_host: "127.0.0.1".to_string(),
+            listen_port: 9999,
+            base_endpoint: "/desk".to_string(),
+        };
+
+        let state = AppRuntimeState::new_in_directory(tempdir.path()).expect("state");
+
+        state
+            .save_proxy_settings(&persisted)
+            .expect("persist proxy settings");
+
+        let reloaded = AppRuntimeState::new_in_directory(tempdir.path()).expect("reload state");
+
+        assert_eq!(reloaded.persisted_proxy_settings(), persisted);
     }
 }
