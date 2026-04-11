@@ -1,26 +1,49 @@
+use std::path::Path;
 use std::sync::RwLock;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::models::proxy_runtime::{ProxyRuntimeSnapshot, ProxyRuntimeStatus};
 use crate::models::proxy_settings::ProxySettings;
 use crate::models::runtime_snapshot::{RuntimeSnapshot, RuntimeStatus};
+use crate::runtime::persistence::{ProxyPersistenceError, ProxySettingsPersistence};
 use crate::runtime::proxy_runtime::ProxyRuntimeSupervisor;
 
 pub struct AppRuntimeState {
     app_snapshot: RwLock<RuntimeSnapshot>,
     proxy_snapshot: RwLock<ProxyRuntimeSnapshot>,
+    persisted: RwLock<ProxySettings>,
     last_known_good: RwLock<ProxySettings>,
+    persistence: ProxySettingsPersistence,
     proxy_supervisor: ProxyRuntimeSupervisor,
 }
 
 impl AppRuntimeState {
     pub fn new() -> Self {
-        Self {
+        Self::with_persistence(
+            ProxySettingsPersistence::in_memory().expect("in-memory proxy settings persistence"),
+        )
+        .expect("default runtime state")
+    }
+
+    pub fn new_in_directory(config_dir: impl AsRef<Path>) -> Result<Self, ProxyPersistenceError> {
+        Self::with_persistence(ProxySettingsPersistence::new(config_dir)?)
+    }
+
+    fn with_persistence(
+        persistence: ProxySettingsPersistence,
+    ) -> Result<Self, ProxyPersistenceError> {
+        let persisted = persistence.load_settings()?;
+        let snapshot =
+            ProxyRuntimeSnapshot::new(ProxyRuntimeStatus::Stopped, persisted.clone(), None, None);
+
+        Ok(Self {
             app_snapshot: RwLock::new(RuntimeSnapshot::bootstrapping()),
-            proxy_snapshot: RwLock::new(ProxyRuntimeSnapshot::default()),
-            last_known_good: RwLock::new(ProxySettings::default()),
+            proxy_snapshot: RwLock::new(snapshot),
+            persisted: RwLock::new(persisted.clone()),
+            last_known_good: RwLock::new(persisted),
+            persistence,
             proxy_supervisor: ProxyRuntimeSupervisor::new(),
-        }
+        })
     }
 
     pub fn snapshot(&self) -> RuntimeSnapshot {
@@ -49,6 +72,23 @@ impl AppRuntimeState {
             .read()
             .expect("proxy runtime snapshot read lock")
             .clone()
+    }
+
+    pub fn persisted_proxy_settings(&self) -> ProxySettings {
+        self.persisted
+            .read()
+            .expect("persisted proxy settings read lock")
+            .clone()
+    }
+
+    pub fn save_proxy_settings(
+        &self,
+        settings: &ProxySettings,
+    ) -> Result<ProxySettings, ProxyPersistenceError> {
+        let persisted = self.persistence.save_settings(settings)?;
+        self.store_persisted(persisted.clone());
+
+        Ok(persisted)
     }
 
     pub fn last_known_good_proxy_settings(&self) -> ProxySettings {
@@ -133,6 +173,14 @@ impl AppRuntimeState {
         *guard = snapshot;
     }
 
+    fn store_persisted(&self, settings: ProxySettings) {
+        let mut guard = self
+            .persisted
+            .write()
+            .expect("persisted proxy settings write lock");
+        *guard = settings;
+    }
+
     fn store_last_known_good(&self, settings: ProxySettings) {
         let mut guard = self
             .last_known_good
@@ -181,7 +229,10 @@ mod tests {
 
         let snapshot = state.proxy_snapshot();
 
-        assert_eq!(snapshot.status, crate::models::proxy_runtime::ProxyRuntimeStatus::Stopped);
+        assert_eq!(
+            snapshot.status,
+            crate::models::proxy_runtime::ProxyRuntimeStatus::Stopped
+        );
         assert_eq!(snapshot.effective_base_url, "http://127.0.0.1:8787/v1");
         assert_eq!(
             state.last_known_good_proxy_settings(),
