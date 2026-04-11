@@ -74,10 +74,7 @@ impl ProxyRuntimeSupervisor {
     pub async fn is_running(&self) -> bool {
         let guard = self.inner.lock().await;
 
-        guard
-            .task
-            .as_ref()
-            .is_some_and(|task| !task.is_finished())
+        guard.task.as_ref().is_some_and(|task| !task.is_finished())
     }
 }
 

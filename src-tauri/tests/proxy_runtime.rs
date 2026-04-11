@@ -69,12 +69,10 @@ async fn proxy_runtime_failed_restart_preserves_last_known_good_settings() {
         .await;
 
     assert_eq!(failed.status, ProxyRuntimeStatus::Misconfigured);
-    assert!(
-        failed
-            .last_error
-            .as_deref()
-            .is_some_and(|error| !error.trim().is_empty())
-    );
+    assert!(failed
+        .last_error
+        .as_deref()
+        .is_some_and(|error| !error.trim().is_empty()));
     assert_eq!(
         state.last_known_good_proxy_settings(),
         healthy_settings
